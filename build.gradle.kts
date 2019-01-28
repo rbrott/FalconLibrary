@@ -1,11 +1,9 @@
-import edu.wpi.first.toolchain.NativePlatforms
 import org.gradle.api.publish.maven.MavenPublication
 import io.gitlab.arturbosch.detekt.detekt
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "1.3.11"
-    id("edu.wpi.first.GradleRIO") version "2019.2.1"
     id("io.gitlab.arturbosch.detekt") version "1.0.0-RC12"
     maven
     `maven-publish`
@@ -20,12 +18,6 @@ dependencies {
     // Kotlin Standard Library and Coroutines
     compile(kotlin("stdlib"))
     compile("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.1.0")
-
-    // WPILib
-    wpi.deps.wpilib().forEach { compile(it) }
-    wpi.deps.vendor.java().forEach { compile(it) }
-    wpi.deps.vendor.jni(NativePlatforms.roborio).forEach { nativeZip(it) }
-    wpi.deps.vendor.jni(NativePlatforms.desktop).forEach { nativeDesktopZip(it) }
 
     // Apache Commons Math
     compile("org.apache.commons", "commons-math3", "3.6.1")
