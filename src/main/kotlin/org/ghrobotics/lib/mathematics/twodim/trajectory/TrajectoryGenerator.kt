@@ -12,7 +12,6 @@
 package org.ghrobotics.lib.mathematics.twodim.trajectory
 
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
-import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2dCurvature
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2dWithCurvature
 import org.ghrobotics.lib.mathematics.twodim.polynomials.ParametricQuinticHermiteSpline
 import org.ghrobotics.lib.mathematics.twodim.polynomials.ParametricSpline
@@ -61,7 +60,8 @@ class TrajectoryGenerator(
         endVelocity: LinearVelocity,
         maxVelocity: LinearVelocity,
         maxAcceleration: LinearAcceleration,
-        reversed: Boolean
+        reversed: Boolean,
+        optimizeSplines: Boolean = true
     ): TimedTrajectory<Pose2dWithCurvature> {
         val flippedPosition = Pose2d(rotation = 180.degree)
 
@@ -70,7 +70,7 @@ class TrajectoryGenerator(
             if (reversed) point + flippedPosition else point
         }
 
-        var trajectory = trajectoryFromSplineWaypoints(newWayPoints).points
+        var trajectory = trajectoryFromSplineWaypoints(newWayPoints, optimizeSplines).points
 
         // After trajectory generation, flip theta back so it's relative to the field.
         // Also fix curvature.
@@ -79,7 +79,8 @@ class TrajectoryGenerator(
             trajectory = trajectory.map { state ->
                 Pose2dWithCurvature(
                     pose = state.pose + flippedPosition,
-                    curvature = Pose2dCurvature(-state.curvature._curvature, state.curvature.dkds)
+                    curvature = -state.curvature,
+                    dkds = state.dkds
                 )
             }
         }
@@ -97,11 +98,12 @@ class TrajectoryGenerator(
     }
 
     private fun trajectoryFromSplineWaypoints(
-        wayPoints: Sequence<Pose2d>
+        wayPoints: Sequence<Pose2d>,
+        optimizeSplines: Boolean
     ): IndexedTrajectory<Pose2dWithCurvature> {
         val splines = wayPoints.zipWithNext { a, b -> ParametricQuinticHermiteSpline(a, b) }.toMutableList()
 
-        ParametricQuinticHermiteSpline.optimizeSpline(splines)
+        if (optimizeSplines) ParametricQuinticHermiteSpline.optimizeSpline(splines)
 
         return trajectoryFromSplines(splines)
     }

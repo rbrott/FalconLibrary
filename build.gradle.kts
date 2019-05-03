@@ -3,8 +3,8 @@ import io.gitlab.arturbosch.detekt.detekt
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.3.11"
-    id("io.gitlab.arturbosch.detekt") version "1.0.0-RC12"
+    kotlin("jvm") version "1.3.30"
+    id("io.gitlab.arturbosch.detekt") version "1.0.0-RC13"
     maven
     `maven-publish`
 }
@@ -17,7 +17,7 @@ repositories {
 dependencies {
     // Kotlin Standard Library and Coroutines
     compile(kotlin("stdlib"))
-    compile("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.1.0")
+    compile("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.2.0")
 
     // Apache Commons Math
     compile("org.apache.commons", "commons-math3", "3.6.1")
@@ -35,7 +35,7 @@ publishing {
         create<MavenPublication>("mavenLocal") {
             groupId = "org.ghrobotics"
             artifactId = "FalconLibrary"
-            version = "2019.1.20"
+            version = "2019.2.23"
 
             from(components["java"])
         }
